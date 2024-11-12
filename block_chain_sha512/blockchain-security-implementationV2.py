@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ServerConfig:
-    """Configuration for server"""
+    """Configuration for blockchain server"""
     HOST: str = '0.0.0.0'
     PORT: int = 12345
     BUFFER_SIZE: int = 4096
@@ -38,12 +38,12 @@ class Block:
     hash: str
 
     def is_valid(self) -> bool:
-        """Verify block hash"""
+        """Verify block hash using SHA-512"""
         calculated_hash = self.calculate_hash()
         return calculated_hash == self.hash
 
     def calculate_hash(self) -> str:
-        """Calculate block hash"""
+        """Calculate block hash using SHA-512"""
         block_content = (
             f"{self.index}{self.previous_hash}"
             f"{self.timestamp}{self.data_hash}{self.data_content}"
@@ -63,8 +63,8 @@ class HashComparison:
 class BlockchainServer:
     def __init__(self, config: ServerConfig):
         self.config = config
-        self.blockchain = []
-        self.transaction_history = []
+        self.blockchain: List[Block] = []
+        self.transaction_history: List[Transaction] = []
 
     @staticmethod
     def calculate_data_hash(data: str) -> str:
@@ -74,7 +74,6 @@ class BlockchainServer:
     def verify_block_data(self, block_info: Dict[str, Any]) -> tuple[Optional[Block], HashComparison]:
         """Verify received block data and create Block instance"""
         try:
-            # Create Block instance
             block = Block(
                 index=block_info['index'],
                 previous_hash=block_info['previous_hash'],
@@ -84,11 +83,9 @@ class BlockchainServer:
                 hash=block_info['hash']
             )
 
-            # Calculate hashes for comparison
             calculated_data_hash = self.calculate_data_hash(block.data_content)
             calculated_block_hash = block.calculate_hash()
 
-            # Create hash comparison results
             hash_comparison = HashComparison(
                 received_data_hash=block.data_hash,
                 calculated_data_hash=calculated_data_hash,
@@ -154,10 +151,8 @@ class BlockchainServer:
                 block, hash_comparison = self.verify_block_data(block_info)
                 
                 if block and hash_comparison:
-                    # Print hash comparison
                     self.print_hash_comparison(hash_comparison)
                     
-                    # Verify if all hashes match
                     if hash_comparison.is_data_hash_match and hash_comparison.is_block_hash_match:
                         self.blockchain.append(block)
                         self.transaction_history.append(
@@ -195,7 +190,6 @@ class BlockchainServer:
                     f"Data: {tx.data_content}, "
                     f"Time: {tx.timestamp}"
                 )
-
 def main():
     try:
         config = ServerConfig()

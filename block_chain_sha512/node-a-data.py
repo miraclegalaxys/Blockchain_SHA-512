@@ -70,6 +70,9 @@ class BlockchainClient:
                 s.connect((self.config.SERVER_IP, self.config.SERVER_PORT))
                 logger.info("Connected to Node B")
                 
+                # Calculate SHA-512 hash of the data
+                block.data_hash = self.calculate_data_hash(block.data_content)
+                
                 # Send block data
                 block_data = json.dumps(block.to_dict())
                 s.sendall(block_data.encode())
@@ -103,8 +106,8 @@ def main():
             logger.error("Data content cannot be empty")
             return
         
-        # Calculate data hash
-        data_hash = client.calculate_data_hash(data_content) + "EDIT"
+        # Calculate SHA-512 hash of the data
+        data_hash = client.calculate_data_hash(data_content)
         logger.info(f"Calculated data hash: {data_hash}")
         
         # Create new block
