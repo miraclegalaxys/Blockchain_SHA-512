@@ -1,0 +1,32 @@
+flowchart TD
+    %% Node A Flow
+    A1[Node A: Start] --> A2[Get data content from user]
+    A2 --> A3[Calculate data hash]
+    A3 --> A4[Create new block]
+    A4 --> A5[Send block to Node B]
+
+    %% Node B Flow
+    B1[Node B: Receive block] --> B2[Parse block data]
+    B2 --> B3[Calculate data hash]
+    B3 --> B4[Calculate block hash]
+    
+    %% Verification Process
+    B4 --> B5{Verify hashes}
+    B5 -->|Match| B6[Add block to blockchain]
+    B6 --> B7[Send CONFIRM]
+    B5 -->|No match| B8[Send ERROR]
+    
+    %% Node A Response
+    A5 --> B1
+    B7 --> A6[Transaction complete]
+    B8 --> A7[Transaction failed]
+    
+    %% Styling
+    classDef nodeA fill:#e6f3ff,stroke:#4d94ff
+    classDef nodeB fill:#f9f2ec,stroke:#d4a76a
+    classDef process fill:#f0f0f0
+    classDef decision fill:#ffe6e6,stroke:#ff8080
+    
+    class A1,A2,A3,A4,A5,A6,A7 nodeA
+    class B1,B2,B3,B4,B6,B7,B8 nodeB
+    class B5 decision

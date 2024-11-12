@@ -1,0 +1,89 @@
+flowchart TD
+    %% Node A Initialization
+    A1[Node A: Start] --> A2[Initialize BlockConfig]
+    A2 --> A3[Create BlockchainClient]
+    
+    %% User Input and Initial Processing
+    A3 --> A4[Get user input for data content]
+    A4 --> A5{Input empty?}
+    A5 -->|Yes| A6[Log error: Empty content]
+    A5 -->|No| A7[Calculate data hash SHA-512]
+    
+    %% Block Creation
+    A7 --> A8[Create new Block with:]
+    A8 --> A8a[/"
+        - index: 1
+        - previous_hash: '0'
+        - data_hash
+        - data_content
+        - timestamp
+        - calculated hash
+    "/]
+    
+    %% Connection to Node B
+    A8a --> A9[Initialize socket connection]
+    A9 --> A10{Connection successful?}
+    A10 -->|No| A11[Log connection error]
+    A10 -->|Yes| A12[Convert block to JSON]
+    A12 --> A13[Send block data to Node B]
+    
+    %% Node B Processing
+    B1[Node B: Start Server] --> B2[Listen for connections]
+    B2 --> B3[Accept connection]
+    B3 --> B4[Receive block data]
+    
+    %% Block Verification Process
+    B4 --> B5[Parse JSON data]
+    B5 --> B6[Create Block instance]
+    B6 --> B7[Calculate new data hash]
+    B7 --> B8[Calculate new block hash]
+    
+    %% Hash Comparison
+    B8 --> B9[Compare Hashes:]
+    B9 --> B9a[/"
+        Check:
+        1. data_hash matches
+        2. block_hash matches
+    "/]
+    
+    %% Verification Results
+    B9a --> B10{All hashes match?}
+    B10 -->|Yes| B11[Add block to blockchain]
+    B11 --> B12[Add to transaction history]
+    B12 --> B13[Send CONFIRM]
+    B10 -->|No| B14[Log verification failure]
+    B14 --> B15[Send ERROR]
+    
+    %% Node A Response Handling
+    A13 --> B4
+    B13 --> A14[Receive confirmation]
+    B15 --> A14
+    A14 --> A15{Response is CONFIRM?}
+    A15 -->|Yes| A16[Log success]
+    A15 -->|No| A17[Log failure]
+    
+    %% Error Handling Paths
+    A9 --> A18[Handle timeout]
+    A9 --> A19[Handle connection refused]
+    B4 --> B16[Handle invalid JSON]
+    B4 --> B17[Handle general errors]
+    
+    %% Completion
+    A16 --> A20[End success]
+    A17 --> A21[End failure]
+    A6 --> A21
+    A11 --> A21
+    
+    %% Styling
+    classDef nodeA fill:#e6f3ff,stroke:#4d94ff,stroke-width:2px
+    classDef nodeB fill:#f9f2ec,stroke:#d4a76a,stroke-width:2px
+    classDef process fill:#f0f0f0,stroke:#666
+    classDef decision fill:#ffe6e6,stroke:#ff8080,stroke-width:2px
+    classDef data fill:#e6ffe6,stroke:#4da6ff,stroke-width:1px
+    classDef error fill:#ffe6e6,stroke:#ff6666,stroke-width:1px
+    
+    class A1,A2,A3,A4,A7,A8,A9,A12,A13,A14,A16,A17,A20,A21 nodeA
+    class B1,B2,B3,B4,B5,B6,B7,B8,B11,B12,B13,B14,B15 nodeB
+    class A5,A10,B10,A15 decision
+    class A8a,B9a data
+    class A6,A11,A18,A19,B16,B17 error
