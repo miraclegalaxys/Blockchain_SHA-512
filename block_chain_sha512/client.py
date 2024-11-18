@@ -31,7 +31,8 @@ class Block:
     timestamp: Optional[str] = None
     
     def __post_init__(self):
-        self.timestamp = self.timestamp or datetime.now().strftime("%Y-%m-%d %I:%M:%S")
+        current_time = datetime.now()
+        self.timestamp = self.timestamp or f"{current_time.strftime('%Y-%m-%d %H:%M %p')}"
         self.hash = self.calculate_hash()
     
     def calculate_hash(self) -> str:
@@ -107,7 +108,7 @@ def main():
             return
         
         # Calculate SHA-512 hash of the data
-        data_hash = client.calculate_data_hash(data_content)
+        data_hash = client.calculate_data_hash(data_content) #+ "HAHA"
         logger.info(f"Calculated data hash: {data_hash}")
         
         # Create new block
